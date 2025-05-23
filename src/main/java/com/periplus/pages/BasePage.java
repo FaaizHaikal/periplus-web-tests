@@ -18,6 +18,10 @@ public abstract class BasePage {
     PageFactory.initElements(driver, this);
   }
 
+  public void setPageEndpoint(String endpoint) {
+    this.pageUrl = PERIPLUS_URL + endpoint;
+  }
+
   public String getPageUrl() {
     return this.pageUrl;
   }

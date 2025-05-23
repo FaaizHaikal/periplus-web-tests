@@ -1,7 +1,6 @@
 package com.periplus.pages;
 
 import java.util.List;
-import java.util.Random;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;

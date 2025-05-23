@@ -1,43 +1,56 @@
 package com.periplus.pages;
 
+import java.util.List;
+import java.util.Random;
+
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
+import com.periplus.utils.Utils;
+
 public class HomePage extends BasePage {
-  @FindBy(css = ".single-product:first-child")
-  private WebElement firstProductItem;
+  @FindBy(css = ".owl-item.active .single-product")
+  private List<WebElement> visibleBooks;
 
-  @FindBy(css = ".single-product:first-child h3")
-  private WebElement firstProductTitle;
+  @FindBy(id = "cart_total")
+  private WebElement cartTotal;
 
-  @FindBy(css = ".single-product:first-child a.addtocart")
-  private WebElement firstAddToCartButton;
+  String cartTotalCount;
 
   public HomePage(WebDriver driver) {
     super(driver);
   }
 
-  public void disableCarouselScroll() {
-    ((JavascriptExecutor)driver).executeScript(
-        "document.querySelector('.owl-stage').style.transform = 'translateX(0)';"
-    );
+  public String addRandomProductToCart() {
+    cartTotalCount = cartTotal.getText().trim();
+
+    Random random = new Random();
+    WebElement selectedBook = visibleBooks.get(random.nextInt(visibleBooks.size()));
+    
+    String bookId = Utils.getBookId(selectedBook.findElement(By.cssSelector("h3 a")).getDomAttribute("href"));
+    
+    new Actions(driver).moveToElement(selectedBook).perform();
+
+    WebElement addToCartButton = selectedBook.findElement(By.cssSelector("a.addtocart"));
+
+    driverWait.until(ExpectedConditions.visibilityOf(addToCartButton));
+    driverWait.until(ExpectedConditions.elementToBeClickable(addToCartButton));
+
+    addToCartButton.click();
+
+    waitCartTotalChanges();
+
+    return bookId;
   }
 
-  public String addFirstProductToCart() {
-    disableCarouselScroll();
-
-    new Actions(driver).moveToElement(firstProductItem).perform();
-
-    driverWait.until(ExpectedConditions.visibilityOf(firstAddToCartButton));
-    driverWait.until(ExpectedConditions.elementToBeClickable(firstAddToCartButton));
-
-    firstAddToCartButton.click();
-
-    return firstProductTitle.getText().trim();
+  private void waitCartTotalChanges() {
+    driverWait.until(d -> {
+      String count = cartTotal.getText().trim();
+      return !count.equals(cartTotalCount);
+    });
   }
 }

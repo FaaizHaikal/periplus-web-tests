@@ -23,28 +23,50 @@ public class HomePage extends BasePage {
 
   public HomePage(WebDriver driver) {
     super(driver);
+    this.setPageEndpoint("");
   }
 
   public String addRandomProductToCart() {
-    cartTotalCount = cartTotal.getText().trim();
+    driver.get(pageUrl);
 
-    Random random = new Random();
-    WebElement selectedBook = visibleBooks.get(random.nextInt(visibleBooks.size()));
+    cartTotalCount = cartTotal.getText().trim();
     
-    String bookId = Utils.getBookId(selectedBook.findElement(By.cssSelector("h3 a")).getDomAttribute("href"));
+    WebElement selectedBook = selectRandomBook();
+
+    String bookId = Utils.getBookId(getBookUrl(selectedBook));
     
     new Actions(driver).moveToElement(selectedBook).perform();
 
-    WebElement addToCartButton = selectedBook.findElement(By.cssSelector("a.addtocart"));
+    addToCart(selectedBook);
+
+    waitCartTotalChanges();
+  
+    return bookId;
+  }
+
+  private void addToCart(WebElement bookItem) {
+    WebElement addToCartButton = bookItem.findElement(By.cssSelector("a.addtocart"));
 
     driverWait.until(ExpectedConditions.visibilityOf(addToCartButton));
     driverWait.until(ExpectedConditions.elementToBeClickable(addToCartButton));
 
     addToCartButton.click();
+  }
 
-    waitCartTotalChanges();
+  public WebElement selectRandomBook() {
+    Random random = new Random();
+    
+    return visibleBooks.get(random.nextInt(visibleBooks.size()));
+  }
+  
+  private String getBookUrl(WebElement bookItem) {
+    return bookItem.findElement(By.cssSelector("h3 a")).getDomAttribute("href");
+  }
 
-    return bookId;
+  public String selectRandomBookUrl() {
+    driver.get(pageUrl);
+
+    return getBookUrl(selectRandomBook());
   }
 
   private void waitCartTotalChanges() {

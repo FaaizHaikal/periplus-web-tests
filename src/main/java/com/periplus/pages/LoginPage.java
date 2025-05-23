@@ -16,9 +16,13 @@ public class LoginPage extends BasePage {
   
   public LoginPage(WebDriver driver) {
     super(driver);
+
+    this.pageUrl = PERIPLUS_URL + "/account/Login";
   }
 
   public void login(String email, String password) {
+    driver.get(pageUrl);
+
     emailField.clear();
     emailField.sendKeys(email);
 

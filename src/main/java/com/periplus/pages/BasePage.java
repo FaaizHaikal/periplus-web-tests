@@ -2,6 +2,7 @@ package com.periplus.pages;
 
 import java.time.Duration;
 
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -24,5 +25,11 @@ public abstract class BasePage {
 
   public String getPageUrl() {
     return this.pageUrl;
+  }
+
+  public void waitForPageCompleteLoad() {
+    driverWait.until(d -> 
+      ((JavascriptExecutor)d).executeScript("return document.readyState").equals("complete")
+    );
   }
 }
